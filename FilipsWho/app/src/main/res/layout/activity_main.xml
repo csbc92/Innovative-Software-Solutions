@@ -18,7 +18,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/inputSetPoint" />
+        app:layout_constraintTop_toBottomOf="@+id/brightnessSeekbar" />
 
     <TextView
         android:id="@+id/txtIlluminance"
@@ -79,14 +79,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.033" />
 
-    <EditText
-        android:id="@+id/inputSetPoint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:ems="10"
-        android:inputType="number"
-        app:layout_constraintStart_toStartOf="@+id/txtStatus2"
-        app:layout_constraintTop_toBottomOf="@+id/txtStatus2" />
+    <SeekBar
+        android:id="@+id/brightnessSeekbar"
+        android:layout_width="233dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="24dp"
+        android:max="254"
+        android:min="0"
+        android:onClick="seekBrightnessHandler"
+        android:progress="100"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtIlluminance" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
