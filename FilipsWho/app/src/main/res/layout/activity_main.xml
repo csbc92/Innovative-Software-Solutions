@@ -6,90 +6,246 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/txtSystemStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/systemstatus"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider" />
+
+    <TextView
+        android:id="@+id/txtSystemStatus2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/intensity"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divider2" />
+
     <Button
-        android:id="@+id/btnSetpoint"
+        android:id="@+id/btnStartStop"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:onClick="btnSetpointHandler"
-        android:text="Setpoint"
+        android:layout_marginBottom="16dp"
+        android:onClick="btnStartStopHandler"
+        android:text="Start"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/brightnessSeekbar" />
-
-    <TextView
-        android:id="@+id/txtIlluminance"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text=".."
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.199"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtStatus2"
-        app:layout_constraintTop_toBottomOf="@+id/txtPrint"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txtStatus2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Lux:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.199"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="@+id/txtStatus"
-        app:layout_constraintTop_toBottomOf="@+id/txtStatus"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/txtStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text="Status:"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.199"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.034" />
-
-    <TextView
-        android:id="@+id/txtPrint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:text=".."
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.199"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtStatus"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.033" />
+        app:layout_constraintStart_toStartOf="parent" />
 
     <SeekBar
-        android:id="@+id/brightnessSeekbar"
-        android:layout_width="233dp"
+        android:id="@+id/intensitySeekbar"
+        android:layout_width="0dp"
         android:layout_height="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
         android:max="254"
         android:min="0"
         android:onClick="seekBrightnessHandler"
         android:progress="100"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus2"
+        app:layout_constraintTop_toBottomOf="@+id/txtSystemStatus2" />
+
+    <TextView
+        android:id="@+id/txtSlackError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Slack error:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus"
+        app:layout_constraintTop_toBottomOf="@+id/txtCurrentLux" />
+
+    <TextView
+        android:id="@+id/txtCurrentLux"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Current Lux:"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus"
+        app:layout_constraintTop_toBottomOf="@+id/txtSystemStatus" />
+
+    <TextView
+        android:id="@+id/txtCurrentLuxOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/txtCurrentLux"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtCurrentLux"
+        app:layout_constraintTop_toTopOf="@+id/txtCurrentLux" />
+
+    <TextView
+        android:id="@+id/txtSlackErrorOut"
+        android:layout_width="135dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="16dp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/txtSlackError"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtSlackError"
+        app:layout_constraintTop_toTopOf="@+id/txtSlackError"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/txtConfig"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/config"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textSize="18sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtIlluminance" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtSetpoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Setpoint:"
+        app:layout_constraintStart_toStartOf="@+id/txtConfig"
+        app:layout_constraintTop_toBottomOf="@+id/txtConfig" />
+
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/inputSlack"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <View
+        android:id="@+id/divider2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/txtRunningOut"
+        tools:layout_editor_absoluteX="0dp" />
+
+    <TextView
+        android:id="@+id/txtSlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Slack:"
+        app:layout_constraintStart_toStartOf="@+id/txtConfig"
+        app:layout_constraintTop_toBottomOf="@+id/inputSetpoint" />
+
+    <TextView
+        android:id="@+id/inputSetpoint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/txtSetpoint"
+        app:layout_constraintStart_toEndOf="@+id/txtSetpoint"
+        app:layout_constraintTop_toTopOf="@+id/txtSetpoint" />
+
+    <EditText
+        android:id="@+id/inputSlack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ems="10"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/txtSlack"
+        app:layout_constraintStart_toEndOf="@+id/txtSetpoint"
+        app:layout_constraintTop_toTopOf="@+id/txtSlack" />
+
+    <TextView
+        android:id="@+id/txtIntensity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Intensity:"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus"
+        app:layout_constraintTop_toBottomOf="@+id/txtSlackError" />
+
+    <TextView
+        android:id="@+id/txtIntensityOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/txtIntensity"
+        app:layout_constraintStart_toEndOf="@+id/txtIntensity"
+        app:layout_constraintTop_toTopOf="@+id/txtIntensity" />
+
+    <TextView
+        android:id="@+id/txtRunning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Running:"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus"
+        app:layout_constraintTop_toBottomOf="@+id/txtWatt" />
+
+    <TextView
+        android:id="@+id/txtRunningOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="false"
+        app:layout_constraintBottom_toBottomOf="@+id/txtRunning"
+        app:layout_constraintStart_toEndOf="@+id/txtRunning"
+        app:layout_constraintTop_toTopOf="@+id/txtRunning" />
+
+    <View
+        android:id="@+id/divider3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/listDivider"
+        app:layout_constraintTop_toBottomOf="@+id/intensitySeekbar"
+        tools:layout_editor_absoluteX="11dp" />
+
+    <TextView
+        android:id="@+id/txtWatt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="Watt usage:"
+        app:layout_constraintStart_toStartOf="@+id/txtSystemStatus"
+        app:layout_constraintTop_toBottomOf="@+id/txtIntensity" />
+
+    <TextView
+        android:id="@+id/txtWattOut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:text="N/A"
+        app:layout_constraintBottom_toBottomOf="@+id/txtWatt"
+        app:layout_constraintStart_toEndOf="@+id/txtWatt"
+        app:layout_constraintTop_toTopOf="@+id/txtWatt" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">FilipsWho</string>
+    <string name="app_name">Light Whale</string>
+    <string name="config">Config:</string>
+    <string name="systemstatus">System Status:</string>
+    <string name="intensity">Intensity:</string>
 </resources>
