@@ -15,16 +15,15 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import static android.hardware.SensorManager.SENSOR_DELAY_NORMAL;
+import static dk.sdu.filipswho.Utils.round;
+import static dk.sdu.filipswho.Utils.wattUsage;
 
-import nl.stijngroenen.tradfri.device.Device;
 import nl.stijngroenen.tradfri.device.Gateway;
 import nl.stijngroenen.tradfri.device.Light;
-import nl.stijngroenen.tradfri.device.event.EventHandler;
-import nl.stijngroenen.tradfri.device.event.LightChangeBrightnessEvent;
 import nl.stijngroenen.tradfri.util.ColourHex;
 import nl.stijngroenen.tradfri.util.Credentials;
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
+public class MainActivity extends AppCompatActivity implements SensorEventListener, IntensityChangeListener {
 
     private SensorManager sensorManager;
     private Sensor sensor;
@@ -37,46 +36,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String GATEWAY_IP = "192.168.1.100";
     private static final String GATEWAY_PASSPHRASE = "mbpRdLgXUNXBzS5M";
 
-    // Intensity variables
-    private int latestLux = 0;
     private boolean isRunning = false;
-    private int setpoint = 0;
-    private int slack = 15;
-    private int desiredIntensity = 0; // The intensity that we wish to set
-    private int actualIntensity = 0; // The actual intensity received from the light bulb
-    private static final int RESOLUTION = 1; // This is the resolution used to adjust the intensity state
-    private static final int MIN_INTENSITY = 1;
-    private static final int MAX_INTENSITY = 254;
+
+    // Algorithm
+    private LightAlgorithm algo;
+    private Thread algoThread;
+    private LightState lightState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        initializeAlgorithm();
         initializeSensor();
-
-        if (this.gateway == null) {
-            initializeGateway();
-        }
-
+        initializeGateway();
         initializeUiElements();
+        this.algo.addListener(new DataCollector());
+    }
+
+    private void initializeAlgorithm() {
+        this.lightState = new LightState();
+        this.algo = new LightAlgorithm(lightState);
+        this.algo.addListener(this);
     }
 
     private void initializeUiElements() {
         // Config section
         TextView inputSetpoint = findViewById(R.id.inputSetpoint);
-        inputSetpoint.setText(String.valueOf(this.setpoint));
+        inputSetpoint.setText(String.valueOf(this.lightState.getSetpoint()));
 
         TextView inputSlack = findViewById(R.id.inputSlack);
-        inputSlack.setText(String.valueOf(this.slack));
+        inputSlack.setText(String.valueOf(this.lightState.getSlack()));
 
         // Seekbar section
         SeekBar brightnessBar = findViewById(R.id.intensitySeekbar);
-        brightnessBar.setProgress(this.actualIntensity);
+        brightnessBar.setProgress(this.lightState.getIntensity());
         brightnessBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                sendBrightnessLevel(i);
+                updateIntensity(i);
             }
 
             @Override
@@ -107,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         this.credentials = this.gateway.connect(GATEWAY_PASSPHRASE);
 
         this.lightBulb = gateway.getDevice(LIGHTBULB_ID).toLight();
-        this.actualIntensity = this.lightBulb.getBrightness();
+        this.lightState.setIntensity(this.lightBulb.getBrightness());
         this.lightBulb.setColourHex(ColourHex.WARM);
     }
 
@@ -118,12 +117,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         TextView txtRunning = findViewById(R.id.txtRunningOut);
 
         // Update state variables
-        this.setpoint = latestLux;
-        desiredIntensity = actualIntensity;
+        this.lightState.setSetpoint(this.lightState.getLux());
 
         if (isRunning) {
             // Update state variables
             isRunning = false;
+            this.algoThread.interrupt();
+            this.algoThread = null;
 
             // Disable and update UI elements
             btnStartStop.setText("Start");
@@ -132,27 +132,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         } else {
             isRunning = true;
+            this.algoThread = new Thread(this.algo);
+            this.algoThread.start();
 
             // Update System Status View
             TextView inputSetpoint = findViewById(R.id.inputSetpoint);
-            inputSetpoint.setText(String.valueOf(this.latestLux));
+            inputSetpoint.setText(String.valueOf(this.lightState.getLux()));
             txtRunning.setText("True");
 
             // Disable and update UI elements
-            this.slack = Integer.parseInt(inputSlack.getText().toString());
+            this.lightState.setSlack(Integer.parseInt(inputSlack.getText().toString()));
             inputSlack.setEnabled(false);
 
             btnStartStop.setText("Stop");
         }
-
-
     }
 
 
     @Override
     public void onSensorChanged(SensorEvent event) {
         float illuminance = event.values[0];
-        this.latestLux = (int)illuminance;
+        this.lightState.setLux((int)illuminance);
 
         // Update lux in UI
         TextView txtIlluminance = findViewById(R.id.txtCurrentLuxOut);
@@ -161,38 +161,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Calculate the Slack error
         TextView txtSlackErrorOut = findViewById(R.id.txtSlackErrorOut);
-        txtSlackErrorOut.setText(Math.abs(setpoint - latestLux) + unit);
-
-        // Run light adjustment
-        if(this.isRunning) {
-            adjustLightSource(latestLux, this.setpoint, this.slack);
-        }
+        txtSlackErrorOut.setText(Math.abs(this.lightState.getSetpoint() - this.lightState.getLux()) + unit);
     }
 
-    private void adjustLightSource(int lux, int setpoint, int setpointError) {
-        int difference =lux - setpoint;
-
-        int multiplier = 1;
-        if (difference > setpointError) {
-            if (this.desiredIntensity > this.MIN_INTENSITY) {
-                this.desiredIntensity = desiredIntensity - this.RESOLUTION * multiplier;
-                sendBrightnessLevel(this.desiredIntensity);
-            }
-        } else if (difference < setpointError * -1) {
-            if (this.desiredIntensity < this.MAX_INTENSITY) {
-                this.desiredIntensity = desiredIntensity + this.RESOLUTION *multiplier;
-                sendBrightnessLevel(this.desiredIntensity);
-            }
-        }
-    }
-
-    private void sendBrightnessLevel(int newIntensity) {
-        if(newIntensity < MIN_INTENSITY)
-            newIntensity = MIN_INTENSITY;
-        if(newIntensity > MAX_INTENSITY)
-            newIntensity = MAX_INTENSITY;
+    private void updateIntensity(int newIntensity) {
+        if(newIntensity < this.lightState.getMinIntensity())
+            newIntensity = this.lightState.getMinIntensity();
+        if(newIntensity > this.lightState.getMaxIntensity())
+            newIntensity = this.lightState.getMaxIntensity();
 
         lightBulb.setBrightness(newIntensity);
+        this.lightState.setIntensity(newIntensity);
 
         // Update UI element
         TextView txtIntensity = findViewById(R.id.txtIntensityOut);
@@ -205,31 +184,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         intensitySeekBar.setProgress(newIntensity, true);
     }
 
-    /**
-     * This method is based on a regression model made with a watt meter and an IKEA E27 1000 lumen light bulb
-     * @param intensity Value between 0 and 254
-     * @return the watt usage from 0.2 watt to 11.8 watt
-     */
-    private double wattUsage(int intensity) {
-        if (intensity == 0){
-            return 0.2;
-        } else {
-            return 0.737514880516844 * Math.exp(0.010723316391607 * intensity);
-        }
-    }
-
-    /**
-     * Returns the provided double value to the amount of decimals
-     * @param d
-     * @param decimals
-     * @return
-     */
-    private double round(double d, int decimals) {
-        return  Math.round(d * Math.pow(10, decimals)) / Math.pow(10, decimals);
-    }
-
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    @Override
+    public void onIntensityChange(LightState state) {
+        System.out.println("On intensity changed: " + state.getIntensity());
+
+        runOnUiThread(() -> updateIntensity(state.getIntensity()));
     }
 }
