@@ -165,23 +165,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void updateIntensity(int newIntensity) {
-        if(newIntensity < this.lightState.getMinIntensity())
-            newIntensity = this.lightState.getMinIntensity();
-        if(newIntensity > this.lightState.getMaxIntensity())
-            newIntensity = this.lightState.getMaxIntensity();
-
         lightBulb.setBrightness(newIntensity);
-        this.lightState.setIntensity(newIntensity);
 
         // Update UI element
         TextView txtIntensity = findViewById(R.id.txtIntensityOut);
-        txtIntensity.setText(String.valueOf(newIntensity));
-
         TextView txtWattOut = findViewById(R.id.txtWattOut);
-        txtWattOut.setText(String.valueOf(round(wattUsage(newIntensity), 2)));
-
         SeekBar intensitySeekBar = findViewById(R.id.intensitySeekbar);
-        intensitySeekBar.setProgress(newIntensity, true);
+
+        runOnUiThread(() -> {
+            txtIntensity.setText(String.valueOf(newIntensity));
+            txtWattOut.setText(String.valueOf(round(wattUsage(newIntensity), 2)));
+            intensitySeekBar.setProgress(newIntensity, true);
+        });
     }
 
     @Override
@@ -193,6 +188,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onIntensityChange(LightState state) {
         System.out.println("On intensity changed: " + state.getIntensity());
 
-        runOnUiThread(() -> updateIntensity(state.getIntensity()));
+        updateIntensity(state.getIntensity());
     }
 }
